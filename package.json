@@ -1,0 +1,25 @@
+{
+  "name": "taskapp-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
+    "dev:warm": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\" \"node scripts/warmup.mjs\"",
+    "dev:ready": "concurrently \"pnpm --filter api dev\" \"node scripts/dev-launch.mjs\"",
+    "warmup": "node scripts/warmup.mjs",
+    "build": "pnpm --filter @taskapp/db build && pnpm --filter api build && pnpm --filter web build",
+    "lint": "pnpm -r lint",
+    "db:push": "pnpm --filter @taskapp/db db:push",
+    "db:migrate": "pnpm --filter @taskapp/db db:migrate",
+    "db:studio": "pnpm --filter @taskapp/db studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "^5.4.5"
+    }
+  }
+}

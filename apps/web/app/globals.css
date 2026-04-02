@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 226 100% 64%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 262 80% 65%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 226 100% 64%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 213 31% 91%;
+
+    --card: 222 47% 13%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 222 47% 13%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 226 100% 68%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 222 47% 18%;
+    --secondary-foreground: 213 31% 91%;
+
+    --muted: 222 47% 16%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 262 80% 65%;
+    --accent-foreground: 213 31% 91%;
+
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 18%;
+    --input: 222 47% 18%;
+    --ring: 226 100% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+/* Kanban column scroll */
+.kanban-column {
+  min-height: 200px;
+  transition: background-color 0.2s ease;
+}
+.kanban-column.drag-over {
+  @apply bg-accent/10;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  70% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+}
+.ws-indicator-live {
+  animation: pulse-ring 2s infinite;
+}
+
+/* ============================================================================
+   Loading Overlay - DreamTask Premium
+   ============================================================================ */
+
+/* Keyframes */
+@keyframes loading-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes loading-glow-1 {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.25); opacity: 0.6; }
+}
+
+@keyframes loading-glow-2 {
+  0%, 100% { transform: scale(1.2); opacity: 0.15; }
+  50% { transform: scale(0.9); opacity: 0.4; }
+}
+
+@keyframes loading-morph {
+  0%, 100% { border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%; }
+  25% { border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%; }
+  50% { border-radius: 60% 40% 40% 60% / 50% 60% 40% 50%; }
+  75% { border-radius: 40% 60% 50% 50% / 40% 50% 60% 40%; }
+}
+
+@keyframes loading-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loading-spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes loading-shine {
+  0% { transform: translateX(-100%) rotate(25deg); }
+  100% { transform: translateX(200%) rotate(25deg); }
+}
+
+@keyframes loading-progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes loading-pulse-text {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes loading-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: loading-fadeIn 0.3s ease-out forwards;
+}
+
+.loading-backdrop {
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--background) / 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.loading-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  animation: loading-float 4s ease-in-out infinite;
+}
+
+/* Orb Container */
+.loading-orb-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+/* Glow effects */
+.loading-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+}
+
+.loading-glow-1 {
+  inset: -30%;
+  background: hsl(var(--primary) / 0.25);
+  animation: loading-glow-1 3s ease-in-out infinite;
+}
+
+.loading-glow-2 {
+  inset: -20%;
+  background: hsl(var(--accent) / 0.2);
+  animation: loading-glow-2 4s ease-in-out infinite 0.5s;
+}
+
+/* The Orb */
+.loading-orb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7), hsl(var(--accent)));
+  animation: loading-morph 6s ease-in-out infinite, loading-spin 12s linear infinite;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px hsl(var(--primary) / 0.4),
+    0 0 120px hsl(var(--primary) / 0.2),
+    inset 0 0 30px hsl(var(--primary) / 0.3);
+}
+
+.loading-orb-inner {
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.5), transparent);
+  filter: blur(8px);
+}
+
+.loading-orb-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    25deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.15) 45%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.15) 55%,
+    transparent 70%
+  );
+  animation: loading-shine 3s ease-in-out infinite;
+}
+
+/* Orbiting ring */
+.loading-ring {
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.4);
+  border-right-color: rgba(255, 255, 255, 0.1);
+  animation: loading-spin-reverse 2.5s linear infinite;
+}
+
+/* Text area */
+.loading-text-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  background: hsl(var(--card) / 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.loading-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loading-message {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: hsl(var(--foreground) / 0.7);
+  animation: loading-pulse-text 2s ease-in-out infinite;
+}
+
+/* Progress bar */
+.loading-progress-track {
+  width: 8rem;
+  height: 2px;
+  border-radius: 999px;
+  background: hsl(var(--foreground) / 0.05);
+  overflow: hidden;
+}
+
+.loading-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    transparent
+  );
+  animation: loading-progress 2s ease-in-out infinite;
+}
+
