@@ -49,6 +49,12 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // DreamTask Futuristic Palette
+        'dream-indigo': '#0f0c29',
+        'dream-purple': '#302b63',
+        'dream-deep': '#24243e',
+        'dream-cyan': '#00d2ff',
+        'dream-violet': '#9d50bb',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -64,10 +70,20 @@ module.exports = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.8', filter: 'blur(8px)' },
+          '50%': { opacity: '1', filter: 'blur(12px)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'float': 'float 6s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 4s ease-in-out infinite',
       },
     },
   },

@@ -8,7 +8,9 @@ import { Sidebar } from '@/components/Sidebar';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useUIStore } from '@/store/uiStore';
+import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 function DashboardInner({ children }: { children: React.ReactNode }) {
   // Hook นี้จะนับเวลา Session ในพื้นหลัง และ Logout อัตโนมัติถ้าเกิน 24 ชั่วโมง
@@ -18,6 +20,7 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((s) => s.accessToken);
   const user = useAuthStore((s) => s.user);
   const [isAuth, setIsAuth] = useState(false);
+  const isCollapsed = useUIStore((s) => s.sidebarCollapsed);
 
   useEffect(() => {
     if (accessToken && user) {
@@ -55,9 +58,22 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="relative flex min-h-screen text-foreground transition-all duration-300">
+      {/* Cinematic Background */}
+      <div className="dream-bg" />
+
+      {/* Sidebar with Glass Styling - Fixed Position */}
       <Sidebar />
-      <main className="flex-1 w-full overflow-y-auto">{children}</main>
+
+      {/* Main Content Area - Responsive Margin */}
+      <main className={cn(
+        "flex-1 w-full relative z-10 transition-all duration-300",
+        isCollapsed ? "lg:pl-20" : "lg:pl-64"
+      )}>
+        {/* Subtle top glow */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-dream-cyan/20 to-transparent" />
+        {children}
+      </main>
     </div>
   );
 }

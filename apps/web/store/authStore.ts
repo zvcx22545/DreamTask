@@ -7,6 +7,7 @@ interface User {
   email: string;
   role: string;
   avatar?: string;
+  googleId?: string;
 }
 
 interface AuthState {

@@ -1,4 +1,4 @@
-![Project Dream Hero Banner](file:///C:/Users/Nippon/.gemini/antigravity/brain/5d88e0ea-b23b-4de0-aca0-fa434b8b9483/project_dream_hero_1775108261364.png)
+![Project Dream Hero Banner](./assets/project_dream_hero_1775108261364)
 
 # 🌙 Project Dream (Notions)
 
@@ -17,6 +17,8 @@
 </p>
 
 ## ✨ Key Features (คุณสมบัติเด่น)
+
+![Project Dream Features Banner](./assets/features.png)
 
 *   📝 **Block-based Rich Text Editor**: หน้าเขียนโน้ตและงานที่ทรงพลังด้วย **TipTap** รองรับ tables, checklists, และ dynamic sub-tasks.
 *   📋 **Advanced Kanban Boards**: จัดการ workflow ของทีมด้วยบอร์ดที่ลื่นไหล (Smooth Drag & Drop) ขับเคลื่อนโดย **dnd-kit**.

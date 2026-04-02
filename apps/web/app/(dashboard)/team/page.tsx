@@ -11,7 +11,9 @@ import { useTeamStore } from '@/store/teamStore';
 // นำเข้า Global UI Store เพื่อใช้แสดง Toast แจ้งเตือน และ Dialog ยืนยันการลบ
 import { toast, openDialog } from '@/store/uiStore';
 // นำเข้า Icon สวยๆ จาก Radix/Lucide
-import { Plus, Trash2, Mail, Loader2, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash2, Mail, Loader2, Link as LinkIcon, UserMinus, LogOut } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { cn } from '@/lib/utils';
 
 // ==========================================
 // 1. กำหนด Type / Interface เพื่อให้ TypeScript ช่วยเช็คข้อผิดพลาดล่วงหน้า
@@ -56,9 +58,9 @@ export default function TeamPage() {
   // สร้าง Query Client เพื่อใช้สั่งให้ React Query อัปเดตข้อมูลใหม่ (Invalidate) หลังจากทำรายการบางอย่างสำเร็จ
   const qc = useQueryClient();
   
-  // Local State สำหรับเก็บค่าที่พิมพ์ในช่องกรอกอีเมล
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteLink, setInviteLink] = useState('');
+  const currentUser = useAuthStore((s) => s.user);
 
   // --------------------------------------------------------------------------------
   // [A] ดึงข้อมูลทีม (Fetching Data)
@@ -96,10 +98,16 @@ export default function TeamPage() {
   // --------------------------------------------------------------------------------
   const removeMemberMutation = useMutation({
     mutationFn: (userId: string) => api.delete(`/teams/${currentTeam?.id}/members/${userId}`),
-    onSuccess: () => {
-      toast({ title: 'ลบสมาชิกเสร็จสิ้น', variant: 'success' });
+    onSuccess: (data, userId) => {
+      const isMe = userId === currentUser?.id;
+      toast({ title: isMe ? 'คุณออกจากทีมเรียบร้อยแล้ว' : 'ลบสมาชิกเสร็จสิ้น', variant: 'success' });
+      
       // รีเฟรชข้อมูลสมาชิกใหม่
       qc.invalidateQueries({ queryKey: ['team', currentTeam?.id] });
+      // ถ้าเราออกจากทีมเอง ให้เคลียร์ทีมที่เลือกอยู่ด้วย
+      if (isMe) {
+        useTeamStore.getState().setCurrentTeam(null);
+      }
     },
     onError: (err: any) => {
       toast({ title: 'เกิดข้อผิดพลาด', description: err.response?.data?.error || 'ไม่สามารถลบสมาชิกได้', variant: 'error' });
@@ -113,14 +121,16 @@ export default function TeamPage() {
     }
   };
 
-  // ฟังก์ชัน Helper: ไว้เรียกใช้เมื่อกดปุ่ม "ลบ" สมาชิก
-  const handleRemoveMember = (userId: string, userName: string) => {
-    // ใช้ openDialog จาก UI Store แทน window.alert() ธรรมดา เพื่อความสวยงามกลมกลืนกับแอป
+  // ฟังก์ชัน Helper: ไว้เรียกใช้เมื่อกดปุ่ม "ลบ" สมาชิก หรือ "ออกจากทีม"
+  const handleRemoveMember = (userId: string, userName: string, action: 'KICK' | 'LEAVE') => {
+    const isLeave = action === 'LEAVE';
     openDialog({
-      title: 'ลบสมาชิกออกจากทีม',
-      description: `คุณแน่ใจหรือไม่ว่าต้องการลบ ${userName} ออกจากทีม? การกระทำนี้ไม่สามารถย้อนกลับได้`,
+      title: isLeave ? 'ยืนยันการออกจากทีม' : 'ลบสมาชิกออกจากทีม',
+      description: isLeave 
+        ? `คุณแน่ใจหรือไม่ว่าต้องการออกจากทีม "${currentTeam?.name}"?`
+        : `คุณแน่ใจหรือไม่ว่าต้องการลบ ${userName} ออกจากทีม? การกระทำนี้ไม่สามารถย้อนกลับได้`,
       variant: 'destructive',
-      confirmLabel: 'ยืนยันการลบ',
+      confirmLabel: isLeave ? 'ออกจากทีม' : 'ยืนยันการลบ',
       cancelLabel: 'ยกเลิก',
       onConfirm: () => {
         removeMemberMutation.mutate(userId);
@@ -167,38 +177,80 @@ export default function TeamPage() {
                  <p className="text-sm text-muted-foreground">กำลังดึงข้อมูลสมาชิก...</p>
                </div>
             ) : (
-               <div className="space-y-4">
-                 {team?.members.map((m) => (
-                   <div key={m.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:bg-accent/30 transition-colors group">
-                     {/* ข้อมูลสมาชิก Avatar + ชื่อ */}
-                     <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/30 to-blue-500/30 border border-primary/20 flex items-center justify-center text-primary font-bold shadow-sm">
-                         {m.user.name.charAt(0).toUpperCase()}
-                       </div>
-                       <div>
-                         <p className="font-semibold text-foreground text-sm">{m.user.name}</p>
-                         <p className="text-xs text-muted-foreground mt-0.5">{m.user.email}</p>
-                       </div>
-                     </div>
-                     
-                     {/* สถานะ Role + ปุ่มลบ */}
-                     <div className="flex items-center gap-4">
-                       <span className={`text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full font-bold ${
-                         m.role === 'OWNER' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                         m.role === 'ADMIN' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 'bg-muted text-muted-foreground border border-border'
-                       }`}>
-                         {m.role}
-                       </span>
-                       <button
-                         onClick={() => handleRemoveMember(m.userId, m.user.name)}
-                         className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all opacity-50 group-hover:opacity-100"
-                         title="ลบสมาชิกลง"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </button>
-                     </div>
-                   </div>
-                 ))}
+                <div className="space-y-4">
+                  {team?.members.map((m) => {
+                    const isMe = m.userId === currentUser?.id;
+                    const myMember = team.members.find((member) => member.userId === currentUser?.id);
+                    const canKick = (myMember?.role === 'OWNER' || myMember?.role === 'ADMIN') && !isMe;
+                    const canLeave = isMe && m.role !== 'OWNER';
+
+                    return (
+                      <div key={m.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:bg-accent/30 transition-colors group">
+                        {/* ข้อมูลสมาชิก Avatar + ชื่อ */}
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-full border flex items-center justify-center font-bold shadow-sm transition-all",
+                            isMe ? "bg-dream-cyan/20 border-dream-cyan/40 text-dream-cyan" : "bg-white/5 border-white/10 text-muted-foreground"
+                          )}>
+                            {m.user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground text-sm flex items-center gap-2">
+                              {m.user.name}
+                              {isMe && <span className="text-[10px] bg-dream-cyan/20 text-dream-cyan px-1.5 py-0.5 rounded uppercase font-black tracking-tighter">YOU</span>}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{m.user.email}</p>
+                          </div>
+                        </div>
+                        
+                        {/* สถานะ Role + ปุ่มจัดการ */}
+                        <div className="flex items-center gap-4">
+                          <span className={cn(
+                            "text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full font-black border transition-all",
+                            m.role === 'OWNER' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                            m.role === 'ADMIN' ? 'bg-dream-purple/10 text-dream-purple border-dream-purple/20' : 
+                            'bg-muted text-muted-foreground border-border'
+                          )}>
+                            {m.role}
+                          </span>
+
+                          {/* ปุ่ม Kick (สำหรับหัวหน้าทีม) */}
+                          {canKick && (
+                            <button
+                              onClick={() => handleRemoveMember(m.userId, m.user.name, 'KICK')}
+                              className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                              title="เตะออกจากทีม"
+                            >
+                              <UserMinus className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          {/* ปุ่ม Leave (สำหรับตัวเอง) */}
+                          {canLeave && (
+                            <button
+                              onClick={() => handleRemoveMember(m.userId, m.user.name, 'LEAVE')}
+                              className="p-2 text-muted-foreground hover:text-dream-cyan hover:bg-dream-cyan/10 rounded-xl transition-all"
+                              title="ออกจากทีม"
+                            >
+                              <LogOut className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          {/* แจ้งเตือนกรณีเป็น Owner แล้วพยายามจะออก */}
+                          {isMe && m.role === 'OWNER' && (
+                            <div className="group/owner relative">
+                              <div className="p-2 text-muted-foreground/30 cursor-not-allowed">
+                                <LogOut className="w-4 h-4" />
+                              </div>
+                              <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black border border-border rounded-lg text-[10px] text-muted-foreground opacity-0 group-hover/owner:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl">
+                                เจ้าของทีมไม่สามารถออกจากทีมได้โดยตรง โปรดโอนสิทธิ์ความเป็นเจ้าของก่อน
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                </div>
             )}
           </div>

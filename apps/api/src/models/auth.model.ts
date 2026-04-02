@@ -435,3 +435,36 @@ export async function setPassword(userId: string, body: unknown) {
 
   return { success: true };
 }
+
+/**
+ * เปลี่ยนรหัสผ่าน (สำหรับ user ที่ login ปกติ)
+ * - ต้องระบุรหัสผ่านเดิมเพื่อความปลอดภัย
+ */
+import { changePasswordSchema } from '../lib/schemas.js';
+
+export async function changePassword(userId: string, body: unknown) {
+  const { oldPassword, newPassword } = changePasswordSchema.parse(body);
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user || !user.passwordHash) {
+    throw new AppError(400, 'User not eligible for password change', 'NOT_ELIGIBLE');
+  }
+
+  // 1. ตรวจสอบรหัสผ่านเดิม
+  const isValid = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!isValid) {
+    throw new AppError(401, 'รหัสผ่านเดิมไม่ถูกต้อง', 'INVALID_OLD_PASSWORD');
+  }
+
+  // 2. Hash และบันทึกรหัสผ่านใหม่
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+
+  return { success: true };
+}

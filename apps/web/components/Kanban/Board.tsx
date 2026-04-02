@@ -27,65 +27,71 @@ import { useState } from 'react';
 import { useUpdateTask } from '@/hooks/useTasks';
 import { useTaskStore, type Task, type TaskStatus } from '@/store/taskStore';
 import { KanbanCard } from './Card';
+import { cn } from '@/lib/utils';
 
 // ── กำหนดข้อมูลของแต่ละคอลัมน์ ─────────────────────────────────────────────
-const COLUMNS: { id: TaskStatus; label: string; borderColor: string; countColor: string }[] = [
-  { id: 'TODO',        label: 'รอดำเนินการ',     borderColor: 'border-muted-foreground/30', countColor: 'text-muted-foreground' },
-  { id: 'IN_PROGRESS', label: 'กำลังดำเนินการ',  borderColor: 'border-blue-500/50',         countColor: 'text-blue-400' },
-  { id: 'DONE',        label: 'เสร็จแล้ว',        borderColor: 'border-green-500/50',        countColor: 'text-green-400' },
+const COLUMNS: { id: TaskStatus; label: string; accentColor: string; shadowColor: string }[] = [
+  { id: 'TODO',        label: 'TODO',        accentColor: 'bg-dream-cyan',    shadowColor: 'neon-glow-cyan' },
+  { id: 'IN_PROGRESS', label: 'IN PROGRESS', accentColor: 'bg-yellow-400',  shadowColor: 'shadow-yellow-400/20' },
+  { id: 'DONE',        label: 'COMPLETED',   accentColor: 'bg-dream-violet', shadowColor: 'neon-glow-violet' },
 ];
 
-// ============================================================================
-// KanbanColumn - คอลัมน์แต่ละอัน (ถูก register เป็น Droppable Zone)
-// ============================================================================
 function KanbanColumn({
   id,
   label,
-  borderColor,
-  countColor,
+  accentColor,
+  shadowColor,
   tasks,
 }: {
   id: TaskStatus;
   label: string;
-  borderColor: string;
-  countColor: string;
+  accentColor: string;
+  shadowColor: string;
   tasks: Task[];
 }) {
-  // useDroppable: ลงทะเบียนว่า div นี้คือโซนรับการวาง
-  // ถ้าไม่มีตัวนี้ DnD ไม่รู้ว่าคอลัมน์ไหนรับการวางได้
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
     <div
-      className={`kanban-column flex flex-col rounded-xl border-t-4 ${borderColor}
-        bg-card/60 shadow-sm overflow-hidden min-w-[300px] snap-center md:min-w-0
-        transition-colors duration-200 ${isOver ? 'bg-accent/30' : ''}`}
+      className={cn(
+        "flex flex-col rounded-3xl glass-panel overflow-hidden min-w-[320px] snap-center md:min-w-0 transition-all duration-500",
+        isOver ? "bg-white/10 scale-[1.02] border-white/20" : "bg-white/[0.03]"
+      )}
     >
-      {/* Header ของคอลัมน์ */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50 bg-background/50">
-        <h2 className={`font-bold text-sm tracking-wide uppercase ${countColor}`}>{label}</h2>
-        <span className="rounded-full bg-background border border-border px-2.5 py-0.5 text-xs font-semibold text-muted-foreground shadow-sm">
+      {/* Column Header */}
+      <div className="flex items-center justify-between px-5 py-5 border-b border-white/5">
+        <div className="flex items-center gap-3">
+           <div className={cn("h-2 w-2 rounded-full", accentColor, shadowColor)} />
+           <h2 className="font-black text-xs tracking-[0.2em] text-white/90">{label}</h2>
+        </div>
+        <div className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black text-white/50">
           {tasks.length}
-        </span>
+        </div>
       </div>
 
-      {/* Droppable body: พื้นที่วางการ์ด */}
-      <div ref={setNodeRef} className="p-3 flex-1 min-h-[500px]">
-        {/* SortableContext บอก DnD ว่า list นี้เรียงแนวตั้ง */}
+      {/* Droppable Stage Area */}
+      <div 
+        ref={setNodeRef} 
+        className="p-4 flex-1 min-h-[600px] bg-gradient-to-b from-transparent to-white/[0.01]"
+      >
         <SortableContext
           items={tasks.map((t) => t.id)}
           strategy={verticalListSortingStrategy}
           id={id}
         >
-          <div className="space-y-3 h-full">
+          <div className="space-y-4 h-full">
             {tasks.map((task) => (
               <KanbanCard key={task.id} task={task} />
             ))}
 
-            {/* Empty state */}
+            {/* Empty Terminal State */}
             {tasks.length === 0 && (
-              <div className={`h-24 border-2 border-dashed rounded-lg flex items-center justify-center text-xs transition-colors ${isOver ? 'border-primary/50 text-primary/50' : 'border-border/50 text-muted-foreground/50'}`}>
-                ลากงานมาวางที่นี่
+              <div className={cn(
+                "h-32 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-500",
+                isOver ? "border-dream-cyan/40 bg-dream-cyan/5" : "border-white/5 text-white/20"
+              )}>
+                <div className="text-[10px] font-black tracking-widest leading-none">NO ACTIVE TASKS</div>
+                <div className="text-[9px] font-medium opacity-50 uppercase">Drop fragment here</div>
               </div>
             )}
           </div>
@@ -175,8 +181,8 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
             key={col.id}
             id={col.id}
             label={col.label}
-            borderColor={col.borderColor}
-            countColor={col.countColor}
+            accentColor={col.accentColor}
+            shadowColor={col.shadowColor}
             tasks={tasks.filter((t) => t.status === col.id)}
           />
         ))}

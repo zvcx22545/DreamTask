@@ -9,6 +9,14 @@ const nextConfig = {
     }));
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Allow all HTTPS sources for avatars
+      },
+    ],
+  },
   output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: [],

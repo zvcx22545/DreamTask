@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building, Plus, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useTeamStore } from '@/store/teamStore';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -27,7 +28,11 @@ interface Team {
   name: string;
 }
 
-export function TeamSwitcher() {
+interface TeamSwitcherProps {
+  collapsed?: boolean;
+}
+
+export function TeamSwitcher({ collapsed }: TeamSwitcherProps) {
   const { currentTeam, setCurrentTeam } = useTeamStore();
   const qc = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -58,14 +63,17 @@ export function TeamSwitcher() {
   });
 
   return (
-    <div className="flex flex-col gap-2 w-full p-2">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-        ทีมของคุณ
-      </div>
+    <div className="flex flex-col gap-2 w-full p-1">
+      {!collapsed && (
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1 px-2 opacity-50">
+          ทีมของคุณ
+        </div>
+      )}
       
       {isLoading ? (
         <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> โหลดทีม...
+          <Loader2 className="h-4 w-4 animate-spin text-dream-cyan" /> 
+          {!collapsed && "โหลดทีม..."}
         </div>
       ) : (
         <Select
@@ -75,15 +83,18 @@ export function TeamSwitcher() {
             if (team) setCurrentTeam(team);
           }}
         >
-          <SelectTrigger className="w-full bg-background border-none shadow-none font-medium h-10">
+          <SelectTrigger className={cn(
+            "w-full bg-white/5 border-white/10 shadow-none font-medium h-12 rounded-xl hover:bg-white/10 transition-all",
+            collapsed && "px-0 justify-center"
+          )}>
             <div className="flex items-center gap-2 truncate">
-              <Building className="h-4 w-4 text-primary" />
-              <SelectValue placeholder="เลือกทีม..." />
+              <Building className="h-4 w-4 text-dream-cyan" />
+              {!collapsed && <SelectValue placeholder="เลือกทีม..." />}
             </div>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-dream-indigo border-white/10 text-white outline-none">
             {teams.map((team) => (
-              <SelectItem key={team.id} value={team.id} className="cursor-pointer">
+              <SelectItem key={team.id} value={team.id} className="cursor-pointer hover:bg-white/10 focus:bg-white/10 outline-none">
                 {team.name}
               </SelectItem>
             ))}
@@ -93,9 +104,16 @@ export function TeamSwitcher() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground mt-2" size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            สร้างทีมใหม่
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start text-white/40 hover:text-white hover:bg-white/5 rounded-xl transition-all",
+              collapsed && "px-0 justify-center"
+            )} 
+            size="sm"
+          >
+            <Plus className={cn("h-4 w-4", !collapsed && "mr-2")} />
+            {!collapsed && "สร้างทีมใหม่"}
           </Button>
         </DialogTrigger>
         <DialogContent>

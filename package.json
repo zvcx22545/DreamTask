@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
     "dev:warm": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\" \"node scripts/warmup.mjs\"",
-    "dev:ready": "concurrently \"pnpm --filter api dev\" \"node scripts/dev-launch.mjs\"",
+    "dev:ready": "concurrently \"pnpm --filter api dev\" \"node scripts/dev-launch.mjs\" \"pnpm --filter web dev\" \"node scripts/warmup.mjs\"",
     "warmup": "node scripts/warmup.mjs",
     "build": "pnpm --filter @taskapp/db build && pnpm --filter api build && pnpm --filter web build",
     "lint": "pnpm -r lint",

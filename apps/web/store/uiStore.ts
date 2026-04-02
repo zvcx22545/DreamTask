@@ -34,11 +34,16 @@ interface UIState {
   // Dialog actions
   openDialog: (options: DialogOptions) => void;
   closeDialog: () => void;
+
+  // Sidebar actions
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
   toasts: [],
   dialog: null,
+  sidebarCollapsed: false, // Default value, will be hydrated in components
 
   toast: (options) => {
     const id = Math.random().toString(36).slice(2);
@@ -58,6 +63,8 @@ export const useUIStore = create<UIState>((set) => ({
   openDialog: (options) => set({ dialog: options }),
 
   closeDialog: () => set({ dialog: null }),
+
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
 }));
 
 // ── Convenience helpers (can be called outside React components) ──────────────

@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { X, Pencil, Trash2, Flag, Calendar, User, Save, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dayjs from '@/lib/dayjs';
@@ -18,6 +19,9 @@ import { openDialog } from '@/store/uiStore';
 import { toast } from '@/store/uiStore';
 import DOMPurify from 'dompurify';
 import { BlockEditor } from '@/components/editor/BlockEditor';
+import { useComments, useAddComment, useDeleteComment } from '@/hooks/useComments';
+import { Send, Trash } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 // ── ค่า Map สำหรับแสดงผล (แทนที่โค้ดแบบ Hardcode) ────────────────────────
 const STATUS_LABELS: Record<TaskStatus, string> = {
@@ -200,19 +204,19 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
               </label>
               {isEditing ? (
                 <div className="mt-1">
-                  <BlockEditor 
+                  <BlockEditor
                     content={editForm.description}
                     onChange={(val) => setEditForm((f) => ({ ...f, description: val }))}
                   />
                 </div>
               ) : (
-                <div 
+                <div
                   className="mt-1.5 text-sm text-foreground/90 prose dark:prose-invert max-w-none break-words"
-                  dangerouslySetInnerHTML={{ 
-                    __html: task.description && task.description.trim() !== '' && task.description !== '<p></p>' 
-                      ? DOMPurify.sanitize(task.description) 
-                      : '<span class="text-muted-foreground italic">ไม่มีรายละเอียด</span>' 
-                  }} 
+                  dangerouslySetInnerHTML={{
+                    __html: task.description && task.description.trim() !== '' && task.description !== '<p></p>'
+                      ? DOMPurify.sanitize(task.description)
+                      : '<span class="text-muted-foreground italic">ไม่มีรายละเอียด</span>'
+                  }}
                 />
               )}
             </div>
@@ -296,9 +300,135 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
             <span>สร้างเมื่อ: {dayjs(task.createdAt).fromNow()}</span>
             <span>แก้ไขล่าสุด: {dayjs(task.updatedAt).fromNow()}</span>
           </div>
+
+          {/* ── Comment Section ────────────────────────────────────────── */}
+          <CommentSection taskId={task.id} />
         </div>
       </motion.div>
     </AnimatePresence>,
     document.body
+  );
+}
+
+/**
+ * ── CommentSection ───────────────────────────────────────────────────────────
+ * ส่วนแสดงผลและจัดการคอมเมนต์ของงาน
+ * รองรับการดึงข้อมูล, เพิ่ม และลบคอมเมนต์
+ */
+function CommentSection({ taskId }: { taskId: string }) {
+  const { data: comments, isLoading } = useComments(taskId);
+  const addComment = useAddComment();
+  const deleteComment = useDeleteComment();
+  const currentUser = useAuthStore((s) => s.user);
+  const [content, setContent] = useState('');
+
+  // ฟังก์ชันส่งคอมเมนต์
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim() || addComment.isPending) return;
+
+    addComment.mutate(
+      { taskId, content },
+      {
+        onSuccess: () => {
+          setContent('');
+          toast({ title: 'เพิ่มคอมเมนต์แล้ว', variant: 'success' });
+        },
+      }
+    );
+  };
+
+  // ฟังก์ชันลบคอมเมนต์
+  const handleDelete = (commentId: string) => {
+    deleteComment.mutate({ taskId, commentId }, {
+      onSuccess: () => toast({ title: 'ลบคอมเมนต์แล้ว', variant: 'success' })
+    });
+  };
+
+  return (
+    <div className="border-t border-border/50 bg-white/[0.02]">
+      <div className="p-5">
+        <h3 className="text-xs font-black tracking-widest text-muted-foreground uppercase mb-4">
+          COMMENTS ({comments?.length ?? 0})
+        </h3>
+
+        {/* Comment List */}
+        <div className="space-y-4 max-h-[300px] overflow-y-auto mb-6 pr-2 custom-scrollbar">
+          {isLoading ? (
+            <div className="flex justify-center p-4">
+              <Loader2 className="h-5 w-5 animate-spin text-dream-cyan" />
+            </div>
+          ) : comments?.length === 0 ? (
+            <p className="text-sm text-muted-foreground/50 italic text-center py-4">
+              ยังไม่มีความคิดเห็น... เริ่มแชร์ไอเดียกันเลย!
+            </p>
+          ) : (
+            comments?.map((c) => (
+              <div key={c.id} className="group relative flex gap-3">
+                <div className="relative flex-shrink-0">
+                  <div className="absolute -inset-0.5 bg-gradient-to-tr from-dream-cyan to-dream-violet rounded-full blur opacity-20 group-hover/profile:opacity-50 transition duration-500"></div>
+                  {currentUser?.id === c.userId && (
+                    currentUser.avatar ? (
+                      <Image
+                        src={currentUser.avatar}
+                        alt={currentUser.name}
+                        width={40}
+                        height={40}
+                        className="relative h-10 w-10 rounded-full object-cover border border-white/20"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-dream-indigo to-dream-purple flex items-center justify-center text-sm font-bold text-white">
+                        {currentUser.name?.[0]?.toUpperCase() ?? '?'}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-white/90">{c.user.name}</span>
+                    <span className="text-[10px] text-muted-foreground/60">{dayjs(c.createdAt).fromNow()}</span>
+                  </div>
+                  <p className="text-sm text-white/70 leading-relaxed break-words">{c.content}</p>
+                </div>
+
+                {/* Delete Button (Visible for owner) */}
+                {currentUser?.id === c.userId && (
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-all"
+                    title="ลบคอมเมนต์"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Comment Input */}
+        <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
+          <input
+            type="text"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="เขียนความคิดเห็นของคุณ..."
+            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-dream-cyan/50 placeholder:text-white/20 transition-all"
+          />
+          <button
+            type="submit"
+            disabled={!content.trim() || addComment.isPending}
+            className="flex items-center justify-center h-10 w-10 rounded-xl bg-dream-cyan text-dream-indigo hover:bg-dream-cyan/90 disabled:opacity-50 disabled:grayscale transition-all shadow-[0_0_15px_rgba(0,210,255,0.3)]"
+          >
+            {addComment.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

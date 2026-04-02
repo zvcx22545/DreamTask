@@ -71,6 +71,16 @@ export const setPasswordSchema = z.object({
     .regex(/[0-9]/, 'Must contain digit'),
 });
 
+export const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1),
+  newPassword: z
+    .string()
+    .min(8)
+    .max(72)
+    .regex(/[A-Z]/, 'Must contain uppercase')
+    .regex(/[0-9]/, 'Must contain digit'),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;

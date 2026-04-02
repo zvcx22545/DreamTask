@@ -22,6 +22,7 @@ import {
   forgotPassword,
   resetPassword,
   setPassword,
+  changePassword,
 } from '../models/auth.model.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -46,6 +47,7 @@ authRouter.post('/google', googleLogin);
 authRouter.post('/forgot-password', forgotPasswordHandler);
 authRouter.post('/reset-password', resetPasswordHandler);
 authRouter.post('/set-password', requireAuth, setPasswordHandler);
+authRouter.post('/change-password', requireAuth, changePasswordHandler);
 
 // ── Handler Functions ─────────────────────────────────────────────────────────
 // แต่ละ handler ทำหน้าที่แค่:
@@ -135,6 +137,16 @@ async function resetPasswordHandler(req: Request, res: Response, next: NextFunct
 async function setPasswordHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await setPassword(req.user!.sub, req.body);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** เปลี่ยนรหัสผ่าน — ต้อง login และส่งรหัสผ่านเดิมมาเช็ค */
+async function changePasswordHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await changePassword(req.user!.sub, req.body);
     res.json(result);
   } catch (err) {
     next(err);

@@ -34,22 +34,30 @@ export default function DashboardPage() {
   const pending = tasks.filter((t) => t.status !== 'DONE').length;
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">กระดานงาน: {currentTeam ? currentTeam.name : '...'}</h1>
-          <p className="mt-1 text-muted-foreground">จัดการงานทั้งหมดของทีม</p>
+    <div className="min-h-screen bg-transparent p-8">
+      {/* Header Section */}
+      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-4xl font-black text-white tracking-tight">
+              {currentTeam ? currentTeam.name.toUpperCase() : '...'}
+            </h1>
+            <div className="h-2 w-2 rounded-full bg-dream-cyan neon-glow-cyan animate-pulse" />
+          </div>
+          <p className="text-white/50 font-medium tracking-wide">
+            CENTRAL INTELLIGENCE & TASK ORCHESTRATION
+          </p>
         </div>
+        
         <div className="flex items-center gap-4">
-          {/* WebSocket status indicator */}
-          <div className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm">
-            <div
-              className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500 ws-indicator-live' : 'bg-muted'
-                }`}
-            />
-            <span className="text-muted-foreground">
-              {connected ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อ...'}
+          {/* Futuristic WebSocket Status */}
+          <div className="flex items-center gap-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 text-xs font-bold tracking-widest uppercase transition-all hover:bg-white/10">
+            <div className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${connected ? 'bg-dream-cyan' : 'bg-red-500'}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${connected ? 'bg-dream-cyan neon-glow-cyan' : 'bg-red-500'}`}></span>
+            </div>
+            <span className={connected ? 'text-dream-cyan' : 'text-red-500'}>
+              {connected ? 'SYSTEM LIVE' : 'OFFLINE'}
             </span>
           </div>
           <TaskFormDialog />
@@ -57,33 +65,42 @@ export default function DashboardPage() {
       </div>
 
       {!currentTeam ? (
-        <div className="flex h-64 flex-col items-center justify-center border-2 border-dashed border-border rounded-xl bg-card/30 p-8 text-center mt-8">
-          <h3 className="text-lg font-semibold text-foreground">ยังไม่มีทีมที่เลือก</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            โปรดเลือกทีมจากเมนูด้านซ้าย หรือสร้างทีมใหม่เพื่อเริ่มต้นใช้งาน
+        <div className="flex h-96 flex-col items-center justify-center glass-panel rounded-3xl p-12 text-center mt-8 group">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-white/10">
+             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-dream-cyan to-dream-violet opacity-20 blur-xl animate-pulse" />
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight">NO ACTIVE WORKSPACE</h3>
+          <p className="mt-4 text-white/50 max-w-xs mx-auto leading-relaxed">
+            Please select a team from the sidebar to initialize your command center.
           </p>
         </div>
       ) : (
-        <>
-          {/* Metrics */}
-      <MetricsBar total={total} completed={completed} pending={pending} />
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* Metrics & Filters */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+             <div className="lg:col-span-8">
+                <MetricsBar total={total} completed={completed} pending={pending} />
+             </div>
+             <div className="lg:col-span-4">
+                <TaskFilters onFilter={setFilters} />
+             </div>
+          </div>
 
-      {/* Filters */}
-      <TaskFilters onFilter={setFilters} />
-
-      {/* Kanban Board */}
-      {isLoading ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          {/* Kanban Board Container */}
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-2">
+            {isLoading ? (
+              <div className="flex h-96 items-center justify-center">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-dream-cyan/20 border-t-dream-cyan neon-glow-cyan" />
+              </div>
+            ) : isError ? (
+              <div className="flex h-96 items-center justify-center text-red-400 font-bold tracking-widest glass-panel rounded-3xl">
+                DATA SYNCHRONIZATION ERROR
+              </div>
+            ) : (
+              <KanbanBoard tasks={tasks} />
+            )}
+          </div>
         </div>
-      ) : isError ? (
-        <div className="flex h-64 items-center justify-center text-destructive">
-          เกิดข้อผิดพลาดในการโหลดงาน
-        </div>
-      ) : (
-        <KanbanBoard tasks={tasks} />
-      )}
-        </>
       )}
     </div>
   );
