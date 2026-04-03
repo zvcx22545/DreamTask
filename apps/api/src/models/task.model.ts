@@ -20,6 +20,7 @@ import { cacheWrap, cacheDel, cacheKey, TTL } from '../lib/cache.js';
 import { publishTaskEvent } from '../services/pubsub.js';
 import { taskQueue } from '../queue/taskQueue.js';
 import { logger } from '../lib/logger.js';
+import { searchService } from '../services/search.service.js';
 
 // ── Helper: ตรวจสิทธิ์สมาชิกทีม ──────────────────────────────────────────────
 
@@ -169,6 +170,7 @@ export async function createTask(body: unknown, userId: string) {
   await Promise.all([
     cacheDel(cacheKey.tasksByTeam(data.teamId)),                     // 🗑️ ล้าง Cache
     publishTaskEvent({ type: 'TASK_CREATED', task }),                 // 📡 แจ้ง WebSocket
+    searchService.syncTask(task),                                     // 🔍 Sync Search
     taskQueue.add('log-activity', { taskId: task.id, userId, action: 'created' }), // 📝 Activity Log
   ]);
 
@@ -214,6 +216,7 @@ export async function updateTask(taskId: string, body: unknown, userId: string) 
   await Promise.all([
     cacheDel(cacheKey.tasksByTeam(task.teamId!)),                    // 🗑️ ล้าง Cache
     publishTaskEvent({ type: 'TASK_UPDATED', task }),                 // 📡 แจ้ง WebSocket
+    searchService.syncTask(task),                                     // 🔍 Sync Search
     taskQueue.add('log-activity', { taskId: task.id, userId, action }), // 📝 Activity Log
   ]);
 
@@ -243,6 +246,7 @@ export async function deleteTask(taskId: string, userId: string) {
   await Promise.all([
     cacheDel(cacheKey.tasksByTeam(teamId!)),                         // 🗑️ ล้าง Cache
     publishTaskEvent({ type: 'TASK_DELETED', taskId }),               // 📡 แจ้ง WebSocket
+    searchService.removeFromIndex(taskId),                           // 🔍 Remove from Search
   ]);
 }
 

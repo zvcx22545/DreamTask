@@ -2,6 +2,7 @@
 
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useTasks } from '@/hooks/useTasks';
+import { useSearch } from '@/hooks/useSearch';
 import { useTaskStore } from '@/store/taskStore';
 import { useTeamStore } from '@/store/teamStore';
 import { KanbanBoard } from '@/components/Kanban/Board';
@@ -17,14 +18,28 @@ export default function DashboardPage() {
   // ดึงข้อมูลทีมปัจจุบันที่ User เลือกอยู่ (จาก Zustand Store)
   const currentTeam = useTeamStore((s) => s.currentTeam);
   
+  // ดึงรายการงาน (Tasks) จาก Global State (Zustand)
+  const tasks = useTaskStore((s) => s.tasks);
+
   // ใช้ React Query Custom Hook เพื่อดึงรายการงานทั้งหมดของทีมนี้
   const { isLoading, isError } = useTasks(currentTeam?.id);
-  
-  // ดึงรายการงาน (Tasks) ที่ถูกเก็บไว้ใน Global State (Zustand) หลังจากการดึง API สำเร็จ
-  const tasks = useTaskStore((s) => s.tasks);
-  
+
   // State สำหรับเก็บเงื่อนไขการกรองงาน (เช่น ค้นหาชื่อ, กรองแค่สถานะ DONE)
   const [filters, setFilters] = useState<Record<string, string>>({});
+
+  // 🔍 ค้นหาผ่าน Meilisearch (Global Search)
+  const searchQuery = filters.q;
+  const { data: searchResults, isLoading: isSearching } = useSearch(searchQuery, currentTeam?.id);
+
+  // คำนวณรายการงานที่จะแสดงผล
+  // ⚡ Logic: ถ้ามีการค้นหา ใช้ผลลัพธ์จาก Meilisearch, ถ้าไม่มี ใช้ข้อมูลจาก Cache ปกติ (Local Filter)
+  const displayTasks = searchQuery 
+    ? (searchResults || []) 
+    : tasks.filter((t) => {
+        if (filters.status && t.status !== filters.status) return false;
+        if (filters.priority && t.priority !== filters.priority) return false;
+        return true;
+      });
 
   // คำนวณตัวเลขสถิติเพื่อไปโชว์ใน MetricsBar
   const total = tasks.length;
@@ -82,7 +97,7 @@ export default function DashboardPage() {
                 <MetricsBar total={total} completed={completed} pending={pending} />
              </div>
              <div className="lg:col-span-4">
-                <TaskFilters onFilter={setFilters} />
+                <TaskFilters onFilter={setFilters} isLoading={isSearching} />
              </div>
           </div>
 
@@ -97,7 +112,7 @@ export default function DashboardPage() {
                 DATA SYNCHRONIZATION ERROR
               </div>
             ) : (
-              <KanbanBoard tasks={tasks} />
+              <KanbanBoard tasks={displayTasks} />
             )}
           </div>
         </div>

@@ -1,107 +1,98 @@
-![Project Dream Hero Banner](./assets/project_dream_hero_1775108261364)
+![Project Dream Hero Banner](./assets/banner.png)
 
-# 🌙 Project Dream (Notions)
+# 🌙 Project Dream (DreamTask)
 
-> **Next-Gen Notion-Style Collaborative Workspace**
-> แพลตฟอร์มจัดการงานระดับสูงที่เน้นความสวยงามและการใช้งานที่ไหลลื่น เหมือนมี Notion เป็นของตัวเอง
+> **"Where productivity meets aesthetic fluidity."**  
+> A Next-Gen Notion-style collaborative workspace engineered for teams who value both power and visual excellence.
+
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Express.js](https://img.shields.io/badge/Express-JS-4fc08d?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2d3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![Meilisearch](https://img.shields.io/badge/Meilisearch-FF5C5C?style=for-the-badge&logo=meilisearch&logoColor=white)](https://www.meilisearch.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis)](https://redis.io/)
 
 ---
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/Express-JS-4fc08d?style=for-the-badge&logo=express" alt="Express" />
-  <img src="https://img.shields.io/badge/Prisma-ORM-2d3748?style=for-the-badge&logo=prisma" alt="Prisma" />
-  <img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis" alt="Redis" />
-  <img src="https://img.shields.io/badge/pnpm-CB3837?style=for-the-badge&logo=pnpm" alt="pnpm" />
-</p>
+## 🎯 The Vision
 
-## ✨ Key Features (คุณสมบัติเด่น)
+Productivity tools often force a choice: **Utility or Beauty**. *Project Dream* was built to eliminate that compromise. It's a high-performance Monorepo architecture that delivers a "Zero-Latency" feel through intelligent caching, a lightning-fast search engine, and glassmorphism-inspired UI components.
+
+## ✨ Core Pillars (ฟีเจอร์หลัก)
 
 ![Project Dream Features Banner](./assets/features.png)
 
-*   📝 **Block-based Rich Text Editor**: หน้าเขียนโน้ตและงานที่ทรงพลังด้วย **TipTap** รองรับ tables, checklists, และ dynamic sub-tasks.
-*   📋 **Advanced Kanban Boards**: จัดการ workflow ของทีมด้วยบอร์ดที่ลื่นไหล (Smooth Drag & Drop) ขับเคลื่อนโดย **dnd-kit**.
-*   👥 **Team Collaboration**: ระบบทีมที่สมบูรณ์แบบ รองรับการเชิญสมาชิก (Invitations) และการสลับ Workspace ที่รวดเร็ว.
-*   🔐 **Enterprise-grade Auth**: ระบบล็อกอินที่ปลอดภัย (JWT) พร้อมฟีเจอร์ Reset Password และ Auto-register จากลิงก์คำเชิญ.
-*   ⚡ **High Performance Backend**: สถาปัตยกรรม Monorepo ที่ใช้ **Redis Caching** และ **Prisma Transactions** เพื่อความเสถียรสูงสุด.
+### ✍️ Intelligent Writing Experience
+- **Block-based Editor**: Powered by **TipTap**, supporting multi-level headers, interactive checklists, and collaborative blocks.
+- **Dynamic Content**: Real-time sanitation and rendering using **DOMPurify** for secure, rich content.
+
+### 📊 Fluid Workflow Orchestration
+- **Performance-First Kanban**: Handles hundreds of tasks with smooth drag-and-drop transitions powered by **dnd-kit**.
+- **Real-time Sync**: Changes are reflected instantly across the team using a robust API and future-proofed for WebSockets.
+
+### 🔍 Advanced Search Engine (Meilisearch)
+- **Instant Search**: Sub-millisecond search results with typo-tolerance.
+- **Global Indexing**: Every task, note, and team member is indexed for immediate retrieval.
 
 ---
 
-## 🛠️ Technical Stack (เทคโนโลยีที่ใช้)
+## 🛠️ Technical Excellence (Engineering Highlights)
 
-### Frontend
-- **Framework**: `Next.js 14` (App Router)
-- **Styling**: `Tailwind CSS`, `Framer Motion` (Animations)
-- **State Management**: `Zustand`, `TanStack Query` (React Query)
-- **Editor Core**: `TipTap`
-- **UI Components**: `Radix UI`, `Lucide Icons`
+### **Modern Stack**
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | `Next.js 14` (App Router), `Tailwind CSS`, `Framer Motion`, `Zustand` |
+| **Backend** | `Node.js`, `Express.js`, `TypeScript`, `Prisma ORM` |
+| **Storage & Search** | `PostgreSQL`, `Meilisearch` (Search Engine), `Redis` (Caching) |
+| **Infrastructure** | `pnpm Workspaces` (Monorepo), `Docker Compose` |
 
-### Backend
-- **Server**: `Express.js` with `TypeScript`
-- **Database**: `PostgreSQL` via `Prisma ORM`
-- **Caching**: `Redis`
-- **Authentication**: `JSON Web Tokens (JWT)`, `Bcrypt`
+### **Architecture Overview**
+- **Monorepo Strategy**: Shared types and database schemas across `api` and `web` for type-safety and maintenance.
+- **Database Scalability**: Optimized queries using Prisma Transactions and indexed PostgreSQL fields.
+- **Security**: JWT-based stateless authentication with secure password hashing and invitation-only onboarding flows.
 
 ---
 
-## 📂 Project Structure (โครงสร้างโปรเจกต์)
+## 🚀 Deployment & Local Setup
 
+### 1. Development Environment
 ```bash
-project-dream/
-├── apps/
-│   ├── api/          # Express API Backend (Business Logic & Models)
-│   └── web/          # Next.js Frontend (UI & Components)
-├── packages/
-│   └── db/           # Shared Prisma Schema & Client
-├── scripts/          # Automation & Development Utilities
-└── pnpm-workspace.yaml
-```
+# Clone the repository
+git clone https://github.com/yourusername/project-dream.git
 
----
-
-## 🚀 Getting Started (วิธีการติดตั้ง)
-
-### 1. Prerequisites (สิ่งที่ต้องเตรียม)
-- **Node.js**: v18.x or onwards
-- **pnpm**: v8.x or onwards
-- **Docker**: For running PostgreSQL & Redis (Optional)
-
-### 2. Installation (ดาวน์โหลดและติดตั้ง)
-```bash
-# ติดตั้ง dependencies ทั้งหมด
+# Install dependencies via pnpm
 pnpm install
 
-# ตั้งค่า Environment Variables
-# สร้างไฟล์ .env ใน root และ apps/api, apps/web ตามลำดับ
-cp .env.example .env
+# Start core services (Postgres, Redis, Meilisearch)
+docker-compose up -d
 ```
 
-### 3. Database Setup (ตั้งค่าฐานข้อมูล)
+### 2. Database Initialization
 ```bash
-# Push schema ไปยัง database
+# Sync Prisma schema
 pnpm db:push
 
-# Generate Prisma Client
-pnpm --filter @taskapp/db generate
+# Generate Prisma Client for all packages
+pnpm build:db
 ```
 
-### 4. Run Development (เริ่มโหมดนักพัฒนา)
+### 3. Launch
 ```bash
-# รันทั้ง Frontend และ Backend พร้อมกัน
+# Run both Frontend & Backend in high-performance dev mode
 pnpm dev
 ```
 
 ---
 
-## 🎨 UI/UX Design Goals
-- **Minimalism**: เน้นความสะอาดตา ลด Noise เพื่อเพิ่มสมาธิในการทำงาน.
-- **Micro-interactions**: ทุกการคลิกและการลากมีความละมุนด้วย Framer Motion.
-- **Glassmorphism**: ใช้เอฟเฟกต์ความโปร่งใสและเบลอเพื่อความพรีเมียม.
+## 🎨 UI/UX Philosophy
+- **Minimalist Aesthetic**: High-contrast dark mode with neon accents.
+- **Micro-Animations**: Staggered navigation fades and spring-based transitions for a "Premium" feel.
+- **Glassmorphism**: Layered transparency to create depth and hierarchy without visual clutter.
 
 ---
 
-## 🤝 Contribution
-โปรเจกต์นี้ได้รับการพัฒนาอย่างต่อเนื่อง หากต้องการส่งข้อเสนอแนะหรือแจ้ง Bug สามารถเปิด Issue ได้ทันที!
+## 👨‍💻 Author & Contributions
+Project Dream is maintained and engineered by **Your Name**.  
+Building the future of collaborative tools, one block at a time.
 
-Built with ❤️ by **Team Project Dream**
+---
+*Built with ❤️ and a passion for clean code & beautiful design.*

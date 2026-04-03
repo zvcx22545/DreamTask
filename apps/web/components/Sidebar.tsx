@@ -115,7 +115,12 @@ export function Sidebar({ className }: SidebarProps) {
                 <h2 className="text-2xl font-black tracking-tighter bg-gradient-to-r from-dream-cyan via-dream-violet to-dream-cyan bg-[length:200%_auto] animate-pulse-slow bg-clip-text text-transparent italic">
                   DREAM TASK
                 </h2>
-                <div className="h-1 w-12 bg-dream-cyan rounded-full mt-1 neon-glow-cyan" />
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: 48 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="h-1 bg-dream-cyan rounded-full mt-1 neon-glow-cyan" 
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -138,10 +143,15 @@ export function Sidebar({ className }: SidebarProps) {
 
         {/* Profile Section */}
         {user && (
-          <div className={cn(
-            "mb-8 flex items-center gap-3 px-3 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/profile cursor-default overflow-hidden",
-            isCollapsed && "px-1.5 justify-center"
-          )}>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className={cn(
+              "mb-8 flex items-center gap-3 px-3 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/profile cursor-default overflow-hidden ring-1 ring-white/5",
+              isCollapsed && "px-1.5 justify-center"
+            )}
+          >
             {/* Avatar */}
             <div className="relative flex-shrink-0">
               <div className="absolute -inset-0.5 bg-gradient-to-tr from-dream-cyan to-dream-violet rounded-full blur opacity-20 group-hover/profile:opacity-50 transition duration-500"></div>
@@ -160,7 +170,7 @@ export function Sidebar({ className }: SidebarProps) {
                 </div>
               )}
             </div>
-
+            
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.div
@@ -174,30 +184,58 @@ export function Sidebar({ className }: SidebarProps) {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
 
         {/* Navigation */}
-        <nav className="flex flex-col gap-2 flex-grow overflow-y-auto custom-scrollbar pr-1">
+        <motion.nav 
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3
+              }
+            }
+          }}
+          className="flex flex-col gap-2 flex-grow overflow-y-auto custom-scrollbar pr-1"
+        >
           {!isCollapsed && (
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1 px-2 opacity-50">
+            <motion.div 
+              variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 0.5, x: 0 } }}
+              className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1 px-2"
+            >
               Navigation
-            </div>
+            </motion.div>
           )}
 
-          <Link href="/" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/')} title="Dashboard">
-            <Home className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span>กระดานงาน</span>}
-          </Link>
-          <Link href="/team" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/team')} title="Team">
-            <Users className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span>สมาชิกทีม</span>}
-          </Link>
-          <Link href="/settings" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/settings')} title="Settings">
-            <Settings className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span>ตั้งค่า</span>}
-          </Link>
-        </nav>
+          <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+            <Link href="/" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/')} title="Dashboard">
+              <Home className="h-5 w-5 shrink-0" />
+              {!isCollapsed && <span>กระดานงาน</span>}
+              {pathname === '/' && <motion.div layoutId="active-pill" className="absolute inset-0 bg-white/5 rounded-xl -z-10 shadow-[0_0_20px_rgba(0,210,255,0.1)]" />}
+            </Link>
+          </motion.div>
+          
+          <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+            <Link href="/team" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/team')} title="Team">
+              <Users className="h-5 w-5 shrink-0" />
+              {!isCollapsed && <span>สมาชิกทีม</span>}
+              {pathname === '/team' && <motion.div layoutId="active-pill" className="absolute inset-0 bg-white/5 rounded-xl -z-10 shadow-[0_0_20px_rgba(0,210,255,0.1)]" />}
+            </Link>
+          </motion.div>
+
+          <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+            <Link href="/settings" onClick={() => setIsMobileOpen(false)} className={getLinkStyle('/settings')} title="Settings">
+              <Settings className="h-5 w-5 shrink-0" />
+              {!isCollapsed && <span>ตั้งค่า</span>}
+              {pathname === '/settings' && <motion.div layoutId="active-pill" className="absolute inset-0 bg-white/5 rounded-xl -z-10 shadow-[0_0_20px_rgba(0,210,255,0.1)]" />}
+            </Link>
+          </motion.div>
+        </motion.nav>
 
         {/* Footer / Logout */}
         <div className="mt-auto border-t border-white/5 pt-4">
@@ -229,4 +267,3 @@ export function Sidebar({ className }: SidebarProps) {
     </>
   );
 }
-

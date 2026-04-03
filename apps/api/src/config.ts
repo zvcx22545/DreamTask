@@ -21,5 +21,9 @@ export const config = {
   },
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || '654672509087-q10j2d28p55m48c9ipkgfndcsdddld1h.apps.googleusercontent.com',
+  },
+  melli:{
+    MEILI_URL: process.env.MEILI_URL || 'http://localhost:7700',
+    MEILI_MASTER_KEY: process.env.MEILI_MASTER_KEY || 'masterKey',
   }
 };
