@@ -49,7 +49,7 @@ git push origin main
    - **Runtime:** `Node`
    - **Build Command:** 
      ```bash
-     npm install -g pnpm && pnpm install && pnpm build --filter api && npx prisma db push --schema=packages/db/prisma/schema.prisma
+     npm install -g pnpm && pnpm install && pnpm --filter api build && npx prisma db push --schema=packages/db/prisma/schema.prisma
      ```
    - **Start Command:**
      ```bash
