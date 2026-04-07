@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import { redis } from '../lib/redis.js';
 
 export const taskQueue = new Queue('task-activity', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 3,
     backoff: { type: 'exponential', delay: 1_000 },

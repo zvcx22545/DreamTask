@@ -20,7 +20,7 @@ export function createActivityWorker() {
       logger.debug({ taskId, userId, action }, 'Activity logged');
     },
     {
-      connection: redis,
+      connection: redis as any,
       concurrency: 5,
     },
   );
