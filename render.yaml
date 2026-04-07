@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: project-dream-api
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install -g pnpm && pnpm install && pnpm build --filter api && npx prisma db push --schema=packages/db/prisma/schema.prisma
+    startCommand: pnpm --filter api start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
