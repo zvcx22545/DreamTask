@@ -119,7 +119,7 @@ function fileToUrlPath(file: string, baseDir: string): string {
 function isExpressRouter(value: unknown): boolean {
   return (
     typeof value === 'function' &&
-    typeof (value as Record<string, unknown>).use === 'function' &&
-    typeof (value as Record<string, unknown>).get === 'function'
+    typeof (value as unknown as Record<string, unknown>).use === 'function' &&
+    typeof (value as unknown as Record<string, unknown>).get === 'function'
   );
 }

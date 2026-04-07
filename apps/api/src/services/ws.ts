@@ -16,7 +16,7 @@ export function setupWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: '/ws' });
 
   // ── Subscribe to Redis pub/sub channel ─────────────────────────────────────
-  redisSub.subscribe(TASK_PUBSUB_CHANNEL, (err) => {
+  redisSub.subscribe(TASK_PUBSUB_CHANNEL, (err: any) => {
     if (err) {
       logger.error({ err }, 'Redis subscribe error');
     } else {

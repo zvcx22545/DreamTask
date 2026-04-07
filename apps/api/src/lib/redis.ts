@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { logger } from './logger.js';
 import { config } from '../config.js';
 
@@ -16,7 +16,7 @@ export const redisSub = new Redis(config.redis.url, {
 });
 
 redis.on('connect', () => logger.info('Redis connected'));
-redis.on('error', (err) => logger.error({ err }, 'Redis error'));
+redis.on('error', (err: any) => logger.error({ err }, 'Redis error'));
 
 export const TASK_CACHE_KEY = 'tasks:list';
 export const TASK_CACHE_TTL = 60; // seconds
